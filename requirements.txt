@@ -1,0 +1,12 @@
+Django==5.0.2
+imaplib2==3.6
+elasticsearch==8.12.1
+python-dotenv==1.0.1
+slack-sdk==3.27.1
+requests==2.31.0
+langchain==0.1.9
+faiss-cpu==1.10.0
+openai==1.12.0
+django-cors-headers==4.3.1
+djangorestframework==3.14.0
+python-dateutil==2.8.2 
