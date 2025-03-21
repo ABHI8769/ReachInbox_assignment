@@ -3,12 +3,12 @@
 {% block title %}Emails{% endblock %}
 
 {% block content %}
-<div x-data="{ 
+<div x-data='{
     emails: [],
     selectedEmail: null,
-    searchQuery: '',
-    selectedFolder: '',
-    selectedAccount: '',
+    searchQuery: "",
+    selectedFolder: "",
+    selectedAccount: "",
     accounts: [],
     loading: false,
     loadingReply: false,
@@ -17,14 +17,14 @@
     currentPage: 1,
     totalPages: 1,
     pageSize: 10,
-    replyText: '',
+    replyText: "",
     categories: [
-        { value: 'interested', label: 'Interested', color: 'green' },
-        { value: 'meeting_booked', label: 'Meeting Booked', color: 'blue' },
-        { value: 'not_interested', label: 'Not Interested', color: 'red' },
-        { value: 'spam', label: 'Spam', color: 'yellow' },
-        { value: 'out_of_office', label: 'Out of Office', color: 'gray' },
-        { value: 'uncategorized', label: 'Uncategorized', color: 'gray' }
+        { value: "interested", label: "Interested", color: "green" },
+        { value: "meeting_booked", label: "Meeting Booked", color: "blue" },
+        { value: "not_interested", label: "Not Interested", color: "red" },
+        { value: "spam", label: "Spam", color: "yellow" },
+        { value: "out_of_office", label: "Out of Office", color: "gray" },
+        { value: "uncategorized", label: "Uncategorized", color: "gray" }
     ],
     
     async init() {
@@ -32,34 +32,35 @@
         try {
             await this.fetchEmails();
             
-            const accountsResponse = await fetch('/api/accounts/');
+            const accountsResponse = await fetch("/emails/api/accounts/");
             this.accounts = await accountsResponse.json();
         } catch (error) {
-            console.error('Error fetching data:', error);
+            console.error("Error fetching data:", error);
+        } finally {
+            this.loading = false;
         }
-        this.loading = false;
     },
 
     async fetchEmails() {
         try {
             const queryParams = new URLSearchParams();
-            queryParams.append('page', this.currentPage);
-            queryParams.append('page_size', this.pageSize);
+            queryParams.append("page", this.currentPage);
+            queryParams.append("page_size", this.pageSize);
             
             if (this.selectedFolder) {
-                queryParams.append('folder', this.selectedFolder);
+                queryParams.append("folder", this.selectedFolder);
             }
             
             if (this.selectedAccount) {
-                queryParams.append('account_id', this.selectedAccount);
+                queryParams.append("account_id", this.selectedAccount);
             }
             
-            const response = await fetch(`/api/emails/?${queryParams.toString()}`);
+            const response = await fetch(`/emails/api/emails/?${queryParams.toString()}`);
             const data = await response.json();
             this.emails = data.results || data;
             this.totalPages = Math.ceil(data.count / this.pageSize) || 1;
         } catch (error) {
-            console.error('Error fetching emails:', error);
+            console.error("Error fetching emails:", error);
         }
     },
     
@@ -68,13 +69,13 @@
         this.currentPage = 1;
         
         try {
-            if (this.searchQuery.trim() === '') {
+            if (this.searchQuery.trim() === "") {
                 await this.fetchEmails();
             } else {
-                const response = await fetch('/api/emails/search/', {
-                    method: 'POST',
+                const response = await fetch("/emails/api/emails/search/", {
+                    method: "POST",
                     headers: {
-                        'Content-Type': 'application/json',
+                        "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
                         query: this.searchQuery,
@@ -87,7 +88,7 @@
                 this.totalPages = Math.ceil(data.count / this.pageSize) || 1;
             }
         } catch (error) {
-            console.error('Error searching emails:', error);
+            console.error("Error searching emails:", error);
         }
         
         this.loading = false;
@@ -107,12 +108,12 @@
         const emailElement = this.$el.querySelector(`[data-email-id="${emailId}"] .categorize-btn`);
         if (emailElement) {
             emailElement.disabled = true;
-            emailElement.classList.add('opacity-50');
+            emailElement.classList.add("opacity-50");
         }
         
         try {
-            const response = await fetch(`/api/emails/${emailId}/categorize/`, {
-                method: 'POST'
+            const response = await fetch(`/emails/api/emails/${emailId}/categorize/`, {
+                method: "POST"
             });
             const data = await response.json();
             const emailIndex = this.emails.findIndex(e => e.id === emailId);
@@ -120,11 +121,11 @@
                 this.emails[emailIndex].category = data.category;
             }
         } catch (error) {
-            console.error('Error categorizing email:', error);
+            console.error("Error categorizing email:", error);
         } finally {
             if (emailElement) {
                 emailElement.disabled = false;
-                emailElement.classList.remove('opacity-50');
+                emailElement.classList.remove("opacity-50");
             }
         }
     },
@@ -132,17 +133,17 @@
     async suggestReply(emailId, event) {
         event.stopPropagation();
         this.loadingReply = true;
-        this.replyText = '';
+        this.replyText = "";
         
         try {
-            const response = await fetch(`/api/emails/${emailId}/suggest_reply/`, {
-                method: 'POST'
+            const response = await fetch(`/emails/api/emails/${emailId}/suggest_reply/`, {
+                method: "POST"
             });
             const data = await response.json();
-            this.replyText = data.reply || 'No reply suggestion available.';
+            this.replyText = data.reply || "No reply suggestion available.";
         } catch (error) {
-            console.error('Error suggesting reply:', error);
-            this.replyText = 'Error generating reply suggestion.';
+            console.error("Error suggesting reply:", error);
+            this.replyText = "Error generating reply suggestion.";
         } finally {
             this.loadingReply = false;
         }
@@ -154,22 +155,22 @@
         this.similarEmails = [];
         
         try {
-            const response = await fetch(`/api/emails/${emailId}/similar_emails/?top_k=5`);
+            const response = await fetch(`/emails/api/emails/${emailId}/similar_emails/?top_k=5`);
             const data = await response.json();
             this.similarEmails = data.similar_emails || [];
         } catch (error) {
-            console.error('Error finding similar emails:', error);
+            console.error("Error finding similar emails:", error);
         }
     },
     
     getCategoryLabel(value) {
         const category = this.categories.find(c => c.value === value);
-        return category ? category.label : 'Uncategorized';
+        return category ? category.label : "Uncategorized";
     },
     
     getCategoryColor(value) {
         const category = this.categories.find(c => c.value === value);
-        return category ? category.color : 'gray';
+        return category ? category.color : "gray";
     },
     
     formatDate(dateString) {
@@ -177,12 +178,12 @@
         const today = new Date();
         
         if (date.toDateString() === today.toDateString()) {
-            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
         } else {
-            return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+            return date.toLocaleDateString([], { month: "short", day: "numeric" });
         }
     }
-}">
+}'>
     <!-- Search and Filter Section -->
     <div class="mb-6 bg-white shadow rounded-lg p-4">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">

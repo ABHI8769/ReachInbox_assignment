@@ -3,6 +3,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404, render
 from django.views.generic import TemplateView
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from .models import EmailAccount, Email
 from .serializers import (
     EmailAccountSerializer, EmailSerializer,
@@ -27,6 +29,7 @@ class EmailListView(TemplateView):
 class AccountListView(TemplateView):
     template_name = 'emails/account_list.html'
 
+@method_decorator(csrf_exempt, name='dispatch')
 class EmailAccountViewSet(viewsets.ModelViewSet):
     queryset = EmailAccount.objects.all()
     serializer_class = EmailAccountSerializer

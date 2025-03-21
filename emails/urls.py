@@ -7,7 +7,10 @@ router.register(r'accounts', views.EmailAccountViewSet)
 router.register(r'emails', views.EmailViewSet)
 
 urlpatterns = [
-    path('', views.EmailListView.as_view(), name='email_list'),
-    path('accounts/', views.AccountListView.as_view(), name='account_list'),
-    path('', include(router.urls)),
+    # Template views (frontend)
+    path('app/emails/', views.EmailListView.as_view(), name='email_list'),
+    path('app/accounts/', views.AccountListView.as_view(), name='account_list'),
+    
+    # API endpoints
+    path('api/', include(router.urls)),
 ] 
